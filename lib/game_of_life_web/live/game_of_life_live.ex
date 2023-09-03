@@ -5,18 +5,36 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
   @tick_rate 33
   @board_rows 32
   @board_cols 32
+  @topic "game_of_life"
 
   @impl true
   def mount(_params, _session, socket) do
     board = GameOfLifeWeb.Board.new(@board_rows, @board_cols)
     send(self(), :tick)
+
+    # Subscribe to the PubSub topic
+    GameOfLifeWeb.Endpoint.subscribe(@topic)
+
     {:ok, assign(socket, board: board)}
   end
 
   @impl true
   def handle_info(:tick, socket) do
     new_board = GameOfLifeWeb.Game.step(socket.assigns.board)
+
+    # Broadcast the new board state to all subscribers
+    GameOfLifeWeb.Endpoint.broadcast(@topic, "board_update", new_board)
+
     Process.send_after(self(), :tick, @tick_rate)
+    {:noreply, assign(socket, board: new_board)}
+  end
+
+  # Handle the board updates
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{topic: @topic, event: "board_update", payload: new_board},
+        socket
+      ) do
     {:noreply, assign(socket, board: new_board)}
   end
 
