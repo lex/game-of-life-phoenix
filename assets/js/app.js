@@ -23,17 +23,21 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 let Hooks = {};
+const CELL_SIZE = 20;
 
 Hooks.GameCanvas = {
   mounted() {
     this.handleEvent("renderGame", ({ board }) => {
       this.renderBoard(board);
     });
+
+    // Listen for click events on the canvas
+    this.el.addEventListener("click", (event) => this.cellClicked(event));
   },
   renderBoard(board) {
     const canvas = this.el;
     const ctx = canvas.getContext("2d");
-    const cellSize = 20; // Adjust the size as needed
+    const cellSize = CELL_SIZE;
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -49,6 +53,17 @@ Hooks.GameCanvas = {
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
+  },
+  cellClicked(event) {
+    const cellSize = CELL_SIZE;
+    const rect = this.el.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const row = Math.floor(y / cellSize);
+    const col = Math.floor(x / cellSize);
+
+    // Send the "toggle_cell" event to the server with the row and column as arguments
+    this.pushEvent("toggle_cell", { row: row, col: col });
   },
 };
 
