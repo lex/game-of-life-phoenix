@@ -18,14 +18,19 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
 
   @impl true
   def handle_info(:tick, socket) do
-    GameOfLifeWeb.SharedBoard.step_board()
-    new_board = GameOfLifeWeb.SharedBoard.get_board()
+    new_board = GameOfLifeWeb.Game.step(socket.assigns.board)
 
-    # Broadcast the new board state to all subscribers
-    GameOfLifeWeb.Endpoint.broadcast(@topic, "board_update", new_board)
+    string_board =
+      Enum.map(new_board, fn row ->
+        Enum.map(row, fn cell ->
+          Atom.to_string(cell)
+        end)
+      end)
 
     Process.send_after(self(), :tick, @tick_rate)
-    {:noreply, assign(socket, board: new_board)}
+
+    {:noreply,
+     assign(socket, board: new_board) |> push_event("renderGame", %{board: string_board})}
   end
 
   # Handle the board updates
@@ -40,19 +45,7 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
   @impl true
   def render(assigns) do
     ~L"""
-    <div>
-      <%= for {row, row_index} <- Enum.with_index(@board) do %>
-        <div class="row">
-          <%= for {cell, col_index} <- Enum.with_index(row) do %>
-            <div class="cell <%= if cell == :alive, do: "alive", else: "dead" %>"
-                 phx-click="toggle_cell"
-                 phx-value-row="<%= row_index %>"
-                 phx-value-col="<%= col_index %>">
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
+    <canvas id="gameCanvas" width="640" height="640" phx-hook="GameCanvas"></canvas>
     """
   end
 
