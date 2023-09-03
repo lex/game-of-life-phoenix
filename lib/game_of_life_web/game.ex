@@ -32,4 +32,22 @@ defmodule GameOfLifeWeb.Game do
       Enum.at(Enum.at(board, i + dx, []), j + dy) == :alive
     end)
   end
+
+  def toggle_cell(board, row, col) do
+    Enum.with_index(board)
+    |> Enum.map(fn
+      {row_cells, row_idx} when row_idx == row ->
+        Enum.with_index(row_cells)
+        |> Enum.map(fn
+          {cell, col_idx} when col_idx == col -> toggle(cell)
+          {cell, _} -> cell
+        end)
+
+      {row_cells, _} ->
+        row_cells
+    end)
+  end
+
+  defp toggle(:alive), do: :dead
+  defp toggle(:dead), do: :alive
 end

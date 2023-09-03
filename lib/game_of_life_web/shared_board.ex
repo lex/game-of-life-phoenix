@@ -35,4 +35,14 @@ defmodule GameOfLifeWeb.SharedBoard do
     new_board = GameOfLifeWeb.Game.step(board)
     {:noreply, new_board}
   end
+
+  def set_board(new_board) do
+    GenServer.cast(__MODULE__, {:set_board, new_board})
+  end
+
+  # GenServer Callback
+  @impl true
+  def handle_cast({:set_board, new_board}, _board) do
+    {:noreply, new_board}
+  end
 end
