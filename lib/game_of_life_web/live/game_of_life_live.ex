@@ -3,7 +3,7 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    board = GameOfLifeWeb.Board.new(64, 64)
+    board = GameOfLifeWeb.Board.new(32, 32)
     send(self(), :tick)
     {:ok, assign(socket, board: board)}
   end
