@@ -17,9 +17,10 @@ defmodule GameOfLife.Application do
       # Start Finch
       {Finch, name: GameOfLife.Finch},
       # Start the Endpoint (http/https)
-      GameOfLifeWeb.Endpoint
+      GameOfLifeWeb.Endpoint,
       # Start a worker by calling: GameOfLife.Worker.start_link(arg)
       # {GameOfLife.Worker, arg}
+      GameOfLifeWeb.SharedBoard
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

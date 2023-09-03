@@ -3,13 +3,11 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
 
   # milliseconds
   @tick_rate 33
-  @board_rows 32
-  @board_cols 32
   @topic "game_of_life"
 
   @impl true
   def mount(_params, _session, socket) do
-    board = GameOfLifeWeb.Board.new(@board_rows, @board_cols)
+    board = GameOfLifeWeb.SharedBoard.get_board()
     send(self(), :tick)
 
     # Subscribe to the PubSub topic
@@ -20,7 +18,8 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
 
   @impl true
   def handle_info(:tick, socket) do
-    new_board = GameOfLifeWeb.Game.step(socket.assigns.board)
+    GameOfLifeWeb.SharedBoard.step_board()
+    new_board = GameOfLifeWeb.SharedBoard.get_board()
 
     # Broadcast the new board state to all subscribers
     GameOfLifeWeb.Endpoint.broadcast(@topic, "board_update", new_board)
