@@ -1,9 +1,14 @@
 defmodule GameOfLifeWeb.GameOfLifeLive do
   use GameOfLifeWeb, :live_view
 
+  # milliseconds
+  @tick_rate 33
+  @board_rows 32
+  @board_cols 32
+
   @impl true
   def mount(_params, _session, socket) do
-    board = GameOfLifeWeb.Board.new(32, 32)
+    board = GameOfLifeWeb.Board.new(@board_rows, @board_cols)
     send(self(), :tick)
     {:ok, assign(socket, board: board)}
   end
@@ -11,7 +16,7 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
   @impl true
   def handle_info(:tick, socket) do
     new_board = GameOfLifeWeb.Game.step(socket.assigns.board)
-    Process.send_after(self(), :tick, 33)
+    Process.send_after(self(), :tick, @tick_rate)
     {:noreply, assign(socket, board: new_board)}
   end
 
@@ -33,7 +38,7 @@ defmodule GameOfLifeWeb.GameOfLifeLive do
   @impl true
   def handle_event("start", _value, socket) do
     if is_nil(socket.assigns.timer) do
-      timer = Process.send_after(self(), :tick, 33)
+      timer = Process.send_after(self(), :tick, @tick_rate)
       {:noreply, assign(socket, timer: timer)}
     else
       {:noreply, socket}
