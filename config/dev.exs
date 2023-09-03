@@ -3,12 +3,12 @@ import Config
 # Configure your database
 config :game_of_life, GameOfLife.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "mysecretpassword",
+  database: "my_app_dev",
   hostname: "localhost",
-  database: "game_of_life_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
+  port: 5432,
   pool_size: 10
+
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
